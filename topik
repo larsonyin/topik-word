@@ -1,0 +1,1231 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TOPIK 单词背诵</title>
+  <meta name="description" content="TOPIK韩国语能力考试词汇学习工具，帮助你高效背诵韩语单词">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4A6CF7;
+      --primary-light: #6B8AFF;
+      --primary-dark: #3451B2;
+      --accent: #FF6B6B;
+      --accent-light: #FF8E8E;
+      --success: #22C55E;
+      --warning: #F59E0B;
+      --bg: #F0F4FF;
+      --bg-card: #FFFFFF;
+      --text: #1E293B;
+      --text-secondary: #64748B;
+      --text-light: #94A3B8;
+      --border: #E2E8F0;
+      --shadow: 0 4px 24px rgba(74, 108, 247, 0.08);
+      --shadow-lg: 0 8px 40px rgba(74, 108, 247, 0.12);
+      --radius: 16px;
+      --radius-sm: 10px;
+      --radius-xs: 6px;
+      --font-kr: 'Noto Sans KR', system-ui, sans-serif;
+      --font-cn: 'Noto Sans SC', system-ui, sans-serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-cn);
+      color: var(--text);
+      background: var(--bg);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      color: white;
+      padding: 1rem 1.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 20px rgba(74, 108, 247, 0.2);
+    }
+    .header-inner {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+    .header-stats {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.85rem;
+      opacity: 0.9;
+    }
+    .header-stat {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    /* Navigation */
+    .nav {
+      max-width: 800px;
+      margin: 1rem auto 0;
+      padding: 0 1.5rem;
+      display: flex;
+      gap: 0.5rem;
+    }
+    .nav-btn {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: none;
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      font-family: var(--font-cn);
+      font-size: 0.9rem;
+      font-weight: 500;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: var(--shadow);
+    }
+    .nav-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-lg); }
+    .nav-btn.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    /* Main */
+    .main {
+      max-width: 800px;
+      margin: 1rem auto;
+      padding: 0 1.5rem 3rem;
+    }
+
+    /* Level & Category Selection */
+    .selection-view { animation: fadeIn 0.3s ease; }
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      color: var(--text);
+    }
+    .level-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .level-card {
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .level-card:hover { border-color: var(--primary-light); transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+    .level-card.selected { border-color: var(--primary); background: #F0F4FF; }
+    .level-card .level-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+    .level-card .level-desc {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+    .level-card .level-count {
+      font-size: 0.75rem;
+      color: var(--primary);
+      margin-top: 0.5rem;
+      font-weight: 500;
+    }
+
+    .category-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .category-chip {
+      background: var(--bg-card);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.6rem 0.75rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+      color: var(--text);
+      font-family: var(--font-cn);
+    }
+    .category-chip:hover { border-color: var(--primary-light); }
+    .category-chip.selected { border-color: var(--primary); background: var(--primary); color: white; }
+    .category-chip .chip-count {
+      display: block;
+      font-size: 0.7rem;
+      color: var(--text-light);
+      margin-top: 0.15rem;
+    }
+    .category-chip.selected .chip-count { color: rgba(255,255,255,0.8); }
+
+    .start-btn {
+      display: block;
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 1.05rem;
+      font-weight: 600;
+      font-family: var(--font-cn);
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 16px rgba(74, 108, 247, 0.3);
+    }
+    .start-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(74, 108, 247, 0.4); }
+    .start-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    /* Study View */
+    .study-view { animation: fadeIn 0.3s ease; }
+    .progress-bar-wrap {
+      background: var(--border);
+      border-radius: 99px;
+      height: 6px;
+      margin-bottom: 1rem;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--primary-light));
+      border-radius: 99px;
+      transition: width 0.4s ease;
+    }
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+    }
+
+    /* Flashcard */
+    .flashcard-container {
+      perspective: 1000px;
+      margin: 0 auto 1.5rem;
+      max-width: 420px;
+    }
+    .flashcard {
+      width: 100%;
+      min-height: 280px;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+    }
+    .flashcard.flipped { transform: rotateY(180deg); }
+    .flashcard-face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      border-radius: var(--radius);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      box-shadow: var(--shadow-lg);
+    }
+    .flashcard-front {
+      background: linear-gradient(145deg, #FFFFFF 0%, #F8FAFF 100%);
+      border: 1px solid var(--border);
+    }
+    .flashcard-back {
+      background: linear-gradient(145deg, var(--primary) 0%, var(--primary-light) 100%);
+      color: white;
+      transform: rotateY(180deg);
+    }
+    .card-word {
+      font-family: var(--font-kr);
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .card-hint {
+      font-size: 0.85rem;
+      color: var(--text-light);
+    }
+    .flashcard-back .card-hint { color: rgba(255,255,255,0.7); }
+    .card-meaning {
+      font-size: 1.6rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+    .card-example {
+      font-size: 0.9rem;
+      text-align: center;
+      line-height: 1.6;
+      opacity: 0.9;
+    }
+    .card-example-kr {
+      font-family: var(--font-kr);
+      margin-bottom: 0.25rem;
+    }
+    .card-example-cn {
+      font-size: 0.85rem;
+      opacity: 0.8;
+    }
+    .card-tag {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      font-size: 0.7rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 99px;
+      background: rgba(0,0,0,0.05);
+      color: var(--text-secondary);
+    }
+    .flashcard-back .card-tag { background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.8); }
+
+    /* Card controls */
+    .card-controls {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+    .ctrl-btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      font-weight: 500;
+      font-family: var(--font-cn);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .ctrl-btn:hover { transform: translateY(-1px); }
+    .ctrl-btn.prev { background: var(--bg-card); color: var(--text-secondary); box-shadow: var(--shadow); }
+    .ctrl-btn.next { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(74,108,247,0.25); }
+    .ctrl-btn.know { background: var(--success); color: white; }
+    .ctrl-btn.dunno { background: var(--accent); color: white; }
+
+    .card-actions {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+    .action-btn {
+      padding: 0.5rem 1rem;
+      border: 1.5px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      border-radius: var(--radius-xs);
+      font-size: 0.8rem;
+      font-family: var(--font-cn);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .action-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .action-btn.mastered { border-color: var(--success); color: var(--success); background: #F0FFF4; }
+
+    /* Quiz View */
+    .quiz-view { animation: fadeIn 0.3s ease; }
+    .quiz-question {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: 2rem;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow);
+    }
+    .quiz-word {
+      font-family: var(--font-kr);
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .quiz-prompt {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+    .quiz-options {
+      display: grid;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .quiz-option {
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 1rem 1.25rem;
+      font-size: 1rem;
+      font-family: var(--font-cn);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+      color: var(--text);
+    }
+    .quiz-option:hover { border-color: var(--primary-light); background: #F8FAFF; }
+    .quiz-option.correct { border-color: var(--success); background: #F0FFF4; color: var(--success); }
+    .quiz-option.wrong { border-color: var(--accent); background: #FFF5F5; color: var(--accent); }
+    .quiz-option.disabled { pointer-events: none; }
+
+    .quiz-result {
+      text-align: center;
+      padding: 1rem;
+      border-radius: var(--radius-sm);
+      margin-bottom: 1rem;
+      font-weight: 500;
+      animation: fadeIn 0.3s ease;
+    }
+    .quiz-result.correct { background: #F0FFF4; color: var(--success); }
+    .quiz-result.wrong { background: #FFF5F5; color: var(--accent); }
+
+    .quiz-next-btn {
+      display: block;
+      width: 100%;
+      padding: 0.9rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 1rem;
+      font-weight: 500;
+      font-family: var(--font-cn);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .quiz-next-btn:hover { background: var(--primary-dark); }
+
+    /* Result View */
+    .result-view {
+      text-align: center;
+      animation: fadeIn 0.3s ease;
+    }
+    .result-circle {
+      width: 160px;
+      height: 160px;
+      margin: 1.5rem auto;
+      position: relative;
+    }
+    .result-circle svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .result-circle .bg { fill: none; stroke: var(--border); stroke-width: 8; }
+    .result-circle .fg { fill: none; stroke: var(--success); stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 1s ease; }
+    .result-score {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .result-score .num { font-size: 2.5rem; font-weight: 700; color: var(--primary); }
+    .result-score .label { font-size: 0.85rem; color: var(--text-secondary); }
+    .result-stats {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin: 1.5rem 0;
+    }
+    .result-stat { text-align: center; }
+    .result-stat .val { font-size: 1.5rem; font-weight: 700; }
+    .result-stat .lbl { font-size: 0.8rem; color: var(--text-secondary); }
+    .result-stat.good .val { color: var(--success); }
+    .result-stat.bad .val { color: var(--accent); }
+    .result-actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+    }
+    .result-actions button { flex: 1; }
+
+    /* Word List View */
+    .wordlist-view { animation: fadeIn 0.3s ease; }
+    .wordlist-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .wordlist-search {
+      padding: 0.5rem 1rem;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-xs);
+      font-size: 0.9rem;
+      font-family: var(--font-cn);
+      width: 200px;
+      transition: border-color 0.2s;
+    }
+    .wordlist-search:focus { outline: none; border-color: var(--primary); }
+    .word-item {
+      background: var(--bg-card);
+      border-radius: var(--radius-sm);
+      padding: 1rem 1.25rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      transition: all 0.2s;
+    }
+    .word-item:hover { box-shadow: var(--shadow); }
+    .word-item-left { display: flex; align-items: center; gap: 1rem; }
+    .word-item-kr { font-family: var(--font-kr); font-size: 1.15rem; font-weight: 600; }
+    .word-item-cn { font-size: 0.9rem; color: var(--text-secondary); }
+    .word-item-tag {
+      font-size: 0.7rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 99px;
+      background: #F0F4FF;
+      color: var(--primary);
+    }
+    .word-item-tag.mastered { background: #F0FFF4; color: var(--success); }
+
+    /* Animations */
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+    .shake { animation: shake 0.4s ease; }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .header { padding: 0.75rem 1rem; }
+      .main { padding: 0 1rem 3rem; }
+      .nav { padding: 0 1rem; }
+      .card-word { font-size: 2rem; }
+      .flashcard-face { padding: 1.5rem; }
+      .level-grid { grid-template-columns: 1fr; }
+      .category-list { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+      .header-stats { display: none; }
+      .result-actions { flex-direction: column; }
+    }
+
+    /* Hidden utility */
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">한</div>
+      <span>TOPIK 单词背诵</span>
+    </div>
+    <div class="header-stats">
+      <div class="header-stat">
+        <span>已掌握</span>
+        <strong id="headerMastered">0</strong>
+      </div>
+      <div class="header-stat">
+        <span>总词数</span>
+        <strong id="headerTotal">0</strong>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav class="nav">
+  <button class="nav-btn active" data-view="study" onclick="switchView('study')">学习</button>
+  <button class="nav-btn" data-view="quiz" onclick="switchView('quiz')">测验</button>
+  <button class="nav-btn" data-view="wordlist" onclick="switchView('wordlist')">词表</button>
+</nav>
+
+<main class="main">
+
+  <!-- Selection View -->
+  <div id="selectionView" class="selection-view">
+    <h2 class="section-title">选择等级</h2>
+    <div class="level-grid">
+      <div class="level-card selected" data-level="topik1" onclick="selectLevel('topik1')">
+        <div class="level-name">TOPIK I</div>
+        <div class="level-desc">初级 · 초급</div>
+        <div class="level-count" id="countTopik1">0 词</div>
+      </div>
+      <div class="level-card" data-level="topik2" onclick="selectLevel('topik2')">
+        <div class="level-name">TOPIK II</div>
+        <div class="level-desc">中高级 · 중고급</div>
+        <div class="level-count" id="countTopik2">0 词</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">选择分类</h2>
+    <div class="category-list" id="categoryList"></div>
+
+    <button class="start-btn" id="startBtn" onclick="startStudy()">开始学习</button>
+  </div>
+
+  <!-- Study View -->
+  <div id="studyView" class="study-view hidden">
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="studyProgress" style="width: 0%"></div>
+    </div>
+    <div class="progress-info">
+      <span id="studyCount">1 / 10</span>
+      <span id="studyCategory"></span>
+    </div>
+
+    <div class="flashcard-container">
+      <div class="flashcard" id="flashcard" onclick="flipCard()">
+        <div class="flashcard-face flashcard-front">
+          <span class="card-tag" id="cardTagFront"></span>
+          <div class="card-word" id="cardWord"></div>
+          <div class="card-hint">点击翻转查看释义</div>
+        </div>
+        <div class="flashcard-face flashcard-back">
+          <span class="card-tag" id="cardTagBack"></span>
+          <div class="card-meaning" id="cardMeaning"></div>
+          <div class="card-example">
+            <div class="card-example-kr" id="cardExampleKr"></div>
+            <div class="card-example-cn" id="cardExampleCn"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-controls">
+      <button class="ctrl-btn prev" onclick="prevCard()">← 上一个</button>
+      <button class="ctrl-btn dunno" onclick="markWord(false)">不认识</button>
+      <button class="ctrl-btn know" onclick="markWord(true)">认识</button>
+      <button class="ctrl-btn next" onclick="nextCard()">下一个 →</button>
+    </div>
+
+    <div class="card-actions">
+      <button class="action-btn" id="masterBtn" onclick="toggleMastered()">标记已掌握</button>
+      <button class="action-btn" onclick="backToSelection()">返回选择</button>
+    </div>
+  </div>
+
+  <!-- Quiz View -->
+  <div id="quizView" class="quiz-view hidden">
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="quizProgress" style="width: 0%"></div>
+    </div>
+    <div class="progress-info">
+      <span id="quizCount">1 / 10</span>
+      <span id="quizScore">得分: 0</span>
+    </div>
+
+    <div class="quiz-question">
+      <div class="quiz-word" id="quizWord"></div>
+      <div class="quiz-prompt">选择正确的中文释义</div>
+    </div>
+
+    <div class="quiz-options" id="quizOptions"></div>
+    <div id="quizResult" class="hidden"></div>
+    <button class="quiz-next-btn hidden" id="quizNextBtn" onclick="nextQuiz()">下一题</button>
+  </div>
+
+  <!-- Result View -->
+  <div id="resultView" class="result-view hidden">
+    <h2>学习完成!</h2>
+    <div class="result-circle">
+      <svg viewBox="0 0 100 100">
+        <circle class="bg" cx="50" cy="50" r="42"/>
+        <circle class="fg" id="resultCircle" cx="50" cy="50" r="42" stroke-dasharray="264" stroke-dashoffset="264"/>
+      </svg>
+      <div class="result-score">
+        <div class="num" id="resultPercent">0%</div>
+        <div class="label">正确率</div>
+      </div>
+    </div>
+    <div class="result-stats">
+      <div class="result-stat good">
+        <div class="val" id="resultCorrect">0</div>
+        <div class="lbl">认识</div>
+      </div>
+      <div class="result-stat bad">
+        <div class="val" id="resultWrong">0</div>
+        <div class="lbl">不认识</div>
+      </div>
+    </div>
+    <div class="result-actions">
+      <button class="ctrl-btn prev" onclick="backToSelection()">重新选择</button>
+      <button class="ctrl-btn next" onclick="reviewWrong()">复习错词</button>
+    </div>
+  </div>
+
+  <!-- Word List View -->
+  <div id="wordlistView" class="wordlist-view hidden">
+    <div class="wordlist-header">
+      <h2 class="section-title" style="margin-bottom:0">全部词汇</h2>
+      <input type="text" class="wordlist-search" id="wordlistSearch" placeholder="搜索单词..." oninput="filterWordList()">
+    </div>
+    <div id="wordListContainer"></div>
+  </div>
+
+</main>
+
+<script>
+// ========== VOCABULARY DATA ==========
+const VOCABULARY = {
+  topik1: {
+    "问候": [
+      { kr: "안녕하세요", cn: "你好", ex_kr: "안녕하세요, 만나서 반갑습니다.", ex_cn: "你好，很高兴见到你。" },
+      { kr: "감사합니다", cn: "谢谢", ex_kr: "도와주셔서 감사합니다.", ex_cn: "感谢你的帮助。" },
+      { kr: "죄송합니다", cn: "对不起", ex_kr: "늦어서 죄송합니다.", ex_cn: "对不起我迟到了。" },
+      { kr: "안녕히 가세요", cn: "再见（送别）", ex_kr: "안녕히 가세요, 조심히 가세요.", ex_cn: "再见，路上小心。" },
+      { kr: "안녕히 계세요", cn: "再见（留下）", ex_kr: "저 먼저 갈게요. 안녕히 계세요.", ex_cn: "我先走了，再见。" },
+      { kr: "반갑습니다", cn: "很高兴认识你", ex_kr: "처음 뵙겠습니다. 반갑습니다.", ex_cn: "初次见面，很高兴认识你。" },
+      { kr: "실례합니다", cn: "打扰了", ex_kr: "실례합니다, 잠시만요.", ex_cn: "打扰了，请让一下。" },
+      { kr: "미안합니다", cn: "抱歉", ex_kr: "실수해서 미안합니다.", ex_cn: "犯了错误，很抱歉。" }
+    ],
+    "数字与时间": [
+      { kr: "하나", cn: "一", ex_kr: "하나, 둘, 셋!", ex_cn: "一、二、三！" },
+      { kr: "오늘", cn: "今天", ex_kr: "오늘 날씨가 좋습니다.", ex_cn: "今天天气很好。" },
+      { kr: "내일", cn: "明天", ex_kr: "내일 만납시다.", ex_cn: "明天见吧。" },
+      { kr: "어제", cn: "昨天", ex_kr: "어제 영화를 봤습니다.", ex_cn: "昨天看了电影。" },
+      { kr: "지금", cn: "现在", ex_kr: "지금 몇 시입니까?", ex_cn: "现在几点了？" },
+      { kr: "아침", cn: "早上", ex_kr: "아침에 운동을 합니다.", ex_cn: "早上做运动。" },
+      { kr: "저녁", cn: "晚上", ex_kr: "저녁에 친구를 만납니다.", ex_cn: "晚上见朋友。" },
+      { kr: "주말", cn: "周末", ex_kr: "주말에 뭐 해요?", ex_cn: "周末做什么？" },
+      { kr: "월요일", cn: "星期一", ex_kr: "월요일에 회의가 있습니다.", ex_cn: "星期一有会议。" },
+      { kr: "시간", cn: "时间", ex_kr: "시간이 없습니다.", ex_cn: "没有时间。" }
+    ],
+    "饮食": [
+      { kr: "물", cn: "水", ex_kr: "물 한 잔 주세요.", ex_cn: "请给我一杯水。" },
+      { kr: "밥", cn: "饭", ex_kr: "밥을 먹었습니다.", ex_cn: "吃过饭了。" },
+      { kr: "김치", cn: "泡菜", ex_kr: "김치가 맵습니다.", ex_cn: "泡菜很辣。" },
+      { kr: "커피", cn: "咖啡", ex_kr: "커피 한 잔 할까요?", ex_cn: "喝杯咖啡吗？" },
+      { kr: "빵", cn: "面包", ex_kr: "아침에 빵을 먹습니다.", ex_cn: "早上吃面包。" },
+      { kr: "과일", cn: "水果", ex_kr: "과일을 좋아합니다.", ex_cn: "喜欢水果。" },
+      { kr: "고기", cn: "肉", ex_kr: "고기를 구워 먹습니다.", ex_cn: "烤肉吃。" },
+      { kr: "맛있습니다", cn: "好吃", ex_kr: "이 음식은 정말 맛있습니다.", ex_cn: "这个食物真的很好吃。" },
+      { kr: "배고픕니다", cn: "饿了", ex_kr: "배고픕니다. 뭐 먹을까요?", ex_cn: "饿了，吃什么呢？" },
+      { kr: "맛없습니다", cn: "不好吃", ex_kr: "이 음식은 좀 맛없습니다.", ex_cn: "这个食物有点不好吃。" }
+    ],
+    "交通与出行": [
+      { kr: "지하철", cn: "地铁", ex_kr: "지하철로 출근합니다.", ex_cn: "坐地铁上班。" },
+      { kr: "버스", cn: "公交车", ex_kr: "버스를 타세요.", ex_cn: "请坐公交车。" },
+      { kr: "택시", cn: "出租车", ex_kr: "택시를 불러 주세요.", ex_cn: "请叫出租车。" },
+      { kr: "공항", cn: "机场", ex_kr: "공항에 가야 합니다.", ex_cn: "必须去机场。" },
+      { kr: "역", cn: "车站", ex_kr: "서울역에서 만납시다.", ex_cn: "在首尔站见面吧。" },
+      { kr: "표", cn: "票", ex_kr: "표를 사고 싶습니다.", ex_cn: "想买票。" },
+      { kr: "오른쪽", cn: "右边", ex_kr: "오른쪽으로 가세요.", ex_cn: "请往右走。" },
+      { kr: "왼쪽", cn: "左边", ex_kr: "왼쪽에 은행이 있습니다.", ex_cn: "左边有银行。" },
+      { kr: "멀다", cn: "远", ex_kr: "학교가 멉니다.", ex_cn: "学校很远。" },
+      { kr: "가깝다", cn: "近", ex_kr: "집이 가깝습니다.", ex_cn: "家很近。" }
+    ],
+    "日常生活": [
+      { kr: "집", cn: "家", ex_kr: "집에 가고 싶습니다.", ex_cn: "想回家。" },
+      { kr: "학교", cn: "学校", ex_kr: "학교에서 공부합니다.", ex_cn: "在学校学习。" },
+      { kr: "일하다", cn: "工作", ex_kr: "회사에서 일합니다.", ex_cn: "在公司工作。" },
+      { kr: "자다", cn: "睡觉", ex_kr: "일찍 잡니다.", ex_cn: "早睡。" },
+      { kr: "일어나다", cn: "起床", ex_kr: "여섯 시에 일어납니다.", ex_cn: "六点起床。" },
+      { kr: "씻다", cn: "洗", ex_kr: "손을 씻습니다.", ex_cn: "洗手。" },
+      { kr: "입다", cn: "穿", ex_kr: "옷을 입습니다.", ex_cn: "穿衣服。" },
+      { kr: "사다", cn: "买", ex_kr: "선물을 삽니다.", ex_cn: "买礼物。" },
+      { kr: "만나다", cn: "见面", ex_kr: "친구를 만납니다.", ex_cn: "见朋友。" },
+      { kr: "좋아하다", cn: "喜欢", ex_kr: "한국 음악을 좋아합니다.", ex_cn: "喜欢韩国音乐。" }
+    ],
+    "天气与自然": [
+      { kr: "날씨", cn: "天气", ex_kr: "오늘 날씨가 어떻습니까?", ex_cn: "今天天气怎么样？" },
+      { kr: "비", cn: "雨", ex_kr: "비가 옵니다.", ex_cn: "下雨了。" },
+      { kr: "눈", cn: "雪/眼睛", ex_kr: "눈이 많이 옵니다.", ex_cn: "下很多雪。" },
+      { kr: "덥다", cn: "热", ex_kr: "여름에 매우 덥습니다.", ex_cn: "夏天非常热。" },
+      { kr: "춥다", cn: "冷", ex_kr: "겨울에 춥습니다.", ex_cn: "冬天冷。" },
+      { kr: "바람", cn: "风", ex_kr: "바람이 붑니다.", ex_cn: "刮风了。" },
+      { kr: "봄", cn: "春天", ex_kr: "봄에 꽃이 핍니다.", ex_cn: "春天花开了。" },
+      { kr: "여름", cn: "夏天", ex_kr: "여름에 바다에 갑니다.", ex_cn: "夏天去海边。" },
+      { kr: "가을", cn: "秋天", ex_kr: "가을에 단풍이 아름답습니다.", ex_cn: "秋天的枫叶很美。" },
+      { kr: "겨울", cn: "冬天", ex_kr: "겨울에 스키를 탑니다.", ex_cn: "冬天滑雪。" }
+    ]
+  },
+  topik2: {
+    "社会与文化": [
+      { kr: "문화", cn: "文化", ex_kr: "한국 문화에 관심이 많습니다.", ex_cn: "对韩国文化很感兴趣。" },
+      { kr: "전통", cn: "传统", ex_kr: "전통을 지키는 것이 중요합니다.", ex_cn: "守护传统很重要。" },
+      { kr: "사회", cn: "社会", ex_kr: "사회 문제가 심각합니다.", ex_cn: "社会问题很严重。" },
+      { kr: "경제", cn: "经济", ex_kr: "경제가 빠르게 성장하고 있습니다.", ex_cn: "经济在快速增长。" },
+      { kr: "정치", cn: "政治", ex_kr: "정치에 관심이 없습니다.", ex_cn: "对政治没有兴趣。" },
+      { kr: "환경", cn: "环境", ex_kr: "환경을 보호해야 합니다.", ex_cn: "必须保护环境。" },
+      { kr: "교육", cn: "教育", ex_kr: "교육은 매우 중요합니다.", ex_cn: "教育非常重要。" },
+      { kr: "기술", cn: "技术", ex_kr: "기술이 발전하고 있습니다.", ex_cn: "技术在发展。" },
+      { kr: "역사", cn: "历史", ex_kr: "역사를 배우는 것은 의미 있습니다.", ex_cn: "学习历史是有意义的。" },
+      { kr: "가치", cn: "价值", ex_kr: "서로 다른 가치를 존중해야 합니다.", ex_cn: "应该尊重不同的价值观。" }
+    ],
+    "工作与职场": [
+      { kr: "회사", cn: "公司", ex_kr: "회사에서 일이 많습니다.", ex_cn: "公司事情很多。" },
+      { kr: "경력", cn: "经历/资历", ex_kr: "경력이 중요합니다.", ex_cn: "资历很重要。" },
+      { kr: "급여", cn: "工资", ex_kr: "급여가 만족스럽습니다.", ex_cn: "工资令人满意。" },
+      { kr: "승진", cn: "升职", ex_kr: "승진 기회가 많습니다.", ex_cn: "升职机会很多。" },
+      { kr: "동료", cn: "同事", ex_kr: "동료와 사이가 좋습니다.", ex_cn: "和同事关系很好。" },
+      { kr: "회의", cn: "会议", ex_kr: "오후에 회의가 있습니다.", ex_cn: "下午有会议。" },
+      { kr: "목표", cn: "目标", ex_kr: "목표를 설정해야 합니다.", ex_cn: "应该设定目标。" },
+      { kr: "책임", cn: "责任", ex_kr: "책임을 다해야 합니다.", ex_cn: "应该尽到责任。" },
+      { kr: "경쟁", cn: "竞争", ex_kr: "경쟁이 치열합니다.", ex_cn: "竞争很激烈。" },
+      { kr: "퇴사하다", cn: "辞职", ex_kr: "내년에 퇴사할 계획입니다.", ex_cn: "计划明年辞职。" }
+    ],
+    "情感与心理": [
+      { kr: "행복", cn: "幸福", ex_kr: "행복한 삶을 살고 싶습니다.", ex_cn: "想过得幸福。" },
+      { kr: "스트레스", cn: "压力", ex_kr: "스트레스를 풀어야 합니다.", ex_cn: "需要释放压力。" },
+      { kr: "걱정", cn: "担心", ex_kr: "걱정하지 마세요.", ex_cn: "不要担心。" },
+      { kr: "용기", cn: "勇气", ex_kr: "용기를 내세요.", ex_cn: "鼓起勇气吧。" },
+      { kr: "실망", cn: "失望", ex_kr: "결과에 실망했습니다.", ex_cn: "对结果感到失望。" },
+      { kr: "자랑", cn: "骄傲/自豪", ex_kr: "아들이 자랑스럽습니다.", ex_cn: "为儿子感到骄傲。" },
+      { kr: "외롭다", cn: "孤独", ex_kr: "혼자 있으면 외롭습니다.", ex_cn: "一个人会很孤独。" },
+      { kr: "부끄럽다", cn: "害羞/惭愧", ex_kr: "실수해서 부끄럽습니다.", ex_cn: "犯了错感到惭愧。" },
+      { kr: "감동", cn: "感动", ex_kr: "영화에 감동했습니다.", ex_cn: "被电影感动了。" },
+      { kr: "불안", cn: "不安", ex_kr: "앞으로의 일이 불안합니다.", ex_cn: "对未来的事情感到不安。" }
+    ],
+    "健康与医疗": [
+      { kr: "건강", cn: "健康", ex_kr: "건강이 최고입니다.", ex_cn: "健康最重要。" },
+      { kr: "운동", cn: "运动", ex_kr: "매일 운동합니다.", ex_cn: "每天运动。" },
+      { kr: "병원", cn: "医院", ex_kr: "병원에 가야 합니다.", ex_cn: "必须去医院。" },
+      { kr: "약", cn: "药", ex_kr: "약을 먹어야 합니다.", ex_cn: "必须吃药。" },
+      { kr: "증상", cn: "症状", ex_kr: "어떤 증상이 있습니까?", ex_cn: "有什么症状？" },
+      { kr: "치료", cn: "治疗", ex_kr: "치료를 받고 있습니다.", ex_cn: "正在接受治疗。" },
+      { kr: "피곤하다", cn: "疲倦", ex_kr: "요즘 너무 피곤합니다.", ex_cn: "最近太累了。" },
+      { kr: "아프다", cn: "生病/疼", ex_kr: "머리가 아픕니다.", ex_cn: "头疼。" },
+      { kr: "수술", cn: "手术", ex_kr: "수술이 성공적이었습니다.", ex_cn: "手术很成功。" },
+      { kr: "예방", cn: "预防", ex_kr: "예방이 최선입니다.", ex_cn: "预防是最好的。" }
+    ],
+    "环境与自然": [
+      { kr: "오염", cn: "污染", ex_kr: "대기 오염이 심각합니다.", ex_cn: "大气污染很严重。" },
+      { kr: "재활용", cn: "回收利用", ex_kr: "재활용을 해야 합니다.", ex_cn: "应该回收利用。" },
+      { kr: "에너지", cn: "能源", ex_kr: "태양열 에너지를 사용합니다.", ex_cn: "使用太阳能。" },
+      { kr: "기후", cn: "气候", ex_kr: "기후 변화가 우려됩니다.", ex_cn: "令人担忧气候变化。" },
+      { kr: "자원", cn: "资源", ex_kr: "자원이 부족합니다.", ex_cn: "资源不足。" },
+      { kr: "생태계", cn: "生态系统", ex_kr: "생태계를 보호해야 합니다.", ex_cn: "应该保护生态系统。" },
+      { kr: "멸종", cn: "灭绝", ex_kr: "멸종 위기 동물들이 많습니다.", ex_cn: "有很多濒危动物。" },
+      { kr: "온난화", cn: "变暖", ex_kr: "지구 온난화가 진행 중입니다.", ex_cn: "全球变暖正在进行。" },
+      { kr: "쓰레기", cn: "垃圾", ex_kr: "쓰레기를 줄여야 합니다.", ex_cn: "应该减少垃圾。" },
+      { kr: "자연", cn: "自然", ex_kr: "자연을 소중히 여겨야 합니다.", ex_cn: "应该珍惜自然。" }
+    ],
+    "抽象与表达": [
+      { kr: "의미", cn: "意义", ex_kr: "이 말의 의미가 무엇입니까?", ex_cn: "这句话是什么意思？" },
+      { kr: "관점", cn: "观点", ex_kr: "관점이 다릅니다.", ex_cn: "观点不同。" },
+      { kr: "영향", cn: "影响", ex_kr: "큰 영향을 받았습니다.", ex_cn: "受到了很大影响。" },
+      { kr: "결과", cn: "结果", ex_kr: "결과가 좋습니다.", ex_cn: "结果很好。" },
+      { kr: "원인", cn: "原因", ex_kr: "원인을 찾아야 합니다.", ex_cn: "应该找到原因。" },
+      { kr: "해결", cn: "解决", ex_kr: "문제를 해결했습니다.", ex_cn: "解决了问题。" },
+      { kr: "비교", cn: "比较", ex_kr: "두 가지를 비교해 보세요.", ex_cn: "请比较两个东西。" },
+      { kr: "선택", cn: "选择", ex_kr: "중요한 선택입니다.", ex_cn: "是重要的选择。" },
+      { kr: "기회", cn: "机会", ex_kr: "좋은 기회입니다.", ex_cn: "是好机会。" },
+      { kr: "경험", cn: "经验", ex_kr: "좋은 경험이었습니다.", ex_cn: "是好的经验。" }
+    ]
+  }
+};
+
+// ========== STATE ==========
+let state = {
+  level: 'topik1',
+  category: null,
+  words: [],
+  currentIndex: 0,
+  known: [],
+  unknown: [],
+  mastered: new Set(JSON.parse(localStorage.getItem('topik_mastered') || '[]')),
+  view: 'study', // study, quiz, wordlist
+  quizScore: 0,
+  quizTotal: 0,
+  quizAnswered: false,
+  wrongWords: []
+};
+
+// ========== INIT ==========
+function init() {
+  updateHeaderStats();
+  updateLevelCounts();
+  renderCategories();
+}
+
+function updateHeaderStats() {
+  document.getElementById('headerMastered').textContent = state.mastered.size;
+  let total = 0;
+  Object.values(VOCABULARY).forEach(lv => Object.values(lv).forEach(cat => total += cat.length));
+  document.getElementById('headerTotal').textContent = total;
+}
+
+function updateLevelCounts() {
+  ['topik1', 'topik2'].forEach(lv => {
+    let count = 0;
+    Object.values(VOCABULARY[lv]).forEach(cat => count += cat.length);
+    document.getElementById('count' + lv.charAt(0).toUpperCase() + lv.slice(1)).textContent = count + ' 词';
+  });
+}
+
+// ========== SELECTION ==========
+function selectLevel(level) {
+  state.level = level;
+  state.category = null;
+  document.querySelectorAll('.level-card').forEach(c => c.classList.remove('selected'));
+  document.querySelector(`[data-level="${level}"]`).classList.add('selected');
+  renderCategories();
+}
+
+function renderCategories() {
+  const list = document.getElementById('categoryList');
+  const cats = Object.keys(VOCABULARY[state.level]);
+  list.innerHTML = cats.map(cat => {
+    const count = VOCABULARY[state.level][cat].length;
+    return `<div class="category-chip${state.category === cat ? ' selected' : ''}" onclick="selectCategory('${cat}')">
+      ${cat}<span class="chip-count">${count} 词</span>
+    </div>`;
+  }).join('');
+}
+
+function selectCategory(cat) {
+  state.category = cat;
+  renderCategories();
+}
+
+// ========== STUDY MODE ==========
+function startStudy() {
+  if (!state.category) {
+    state.words = [];
+    Object.values(VOCABULARY[state.level]).forEach(cat => state.words.push(...cat));
+  } else {
+    state.words = [...VOCABULARY[state.level][state.category]];
+  }
+  if (state.words.length === 0) return;
+
+  shuffleArray(state.words);
+  state.currentIndex = 0;
+  state.known = [];
+  state.unknown = [];
+  state.wrongWords = [];
+
+  showView('studyView');
+  renderCard();
+}
+
+function renderCard() {
+  const word = state.words[state.currentIndex];
+  const total = state.words.length;
+  const idx = state.currentIndex + 1;
+
+  document.getElementById('studyProgress').style.width = (idx / total * 100) + '%';
+  document.getElementById('studyCount').textContent = `${idx} / ${total}`;
+  document.getElementById('studyCategory').textContent = state.category || '全部';
+
+  document.getElementById('cardWord').textContent = word.kr;
+  document.getElementById('cardMeaning').textContent = word.cn;
+  document.getElementById('cardExampleKr').textContent = word.ex_kr || '';
+  document.getElementById('cardExampleCn').textContent = word.ex_cn || '';
+  document.getElementById('cardTagFront').textContent = state.category || '';
+  document.getElementById('cardTagBack').textContent = state.category || '';
+
+  // Reset flip
+  document.getElementById('flashcard').classList.remove('flipped');
+
+  // Update master button
+  const masterBtn = document.getElementById('masterBtn');
+  if (state.mastered.has(word.kr)) {
+    masterBtn.textContent = '已掌握 ✓';
+    masterBtn.classList.add('mastered');
+  } else {
+    masterBtn.textContent = '标记已掌握';
+    masterBtn.classList.remove('mastered');
+  }
+}
+
+function flipCard() {
+  document.getElementById('flashcard').classList.toggle('flipped');
+}
+
+function nextCard() {
+  if (state.currentIndex < state.words.length - 1) {
+    state.currentIndex++;
+    renderCard();
+  } else {
+    showResult();
+  }
+}
+
+function prevCard() {
+  if (state.currentIndex > 0) {
+    state.currentIndex--;
+    renderCard();
+  }
+}
+
+function markWord(known) {
+  const word = state.words[state.currentIndex];
+  if (known) {
+    state.known.push(word);
+  } else {
+    state.unknown.push(word);
+    state.wrongWords.push(word);
+  }
+  nextCard();
+}
+
+function toggleMastered() {
+  const word = state.words[state.currentIndex];
+  if (state.mastered.has(word.kr)) {
+    state.mastered.delete(word.kr);
+  } else {
+    state.mastered.add(word.kr);
+  }
+  localStorage.setItem('topik_mastered', JSON.stringify([...state.mastered]));
+  updateHeaderStats();
+  renderCard();
+}
+
+// ========== QUIZ MODE ==========
+function startQuiz(words) {
+  const pool = words || (state.category
+    ? [...VOCABULARY[state.level][state.category]]
+    : Object.values(VOCABULARY[state.level]).flat());
+
+  if (pool.length < 4) {
+    alert('至少需要4个单词才能开始测验');
+    return;
+  }
+
+  shuffleArray(pool);
+  state.words = pool.slice(0, Math.min(10, pool.length));
+  state.quizScore = 0;
+  state.quizTotal = 0;
+  state.currentIndex = 0;
+  state.wrongWords = [];
+
+  showView('quizView');
+  renderQuiz();
+}
+
+function renderQuiz() {
+  const word = state.words[state.currentIndex];
+  const total = state.words.length;
+  const idx = state.currentIndex + 1;
+
+  document.getElementById('quizProgress').style.width = (idx / total * 100) + '%';
+  document.getElementById('quizCount').textContent = `${idx} / ${total}`;
+  document.getElementById('quizScore').textContent = `得分: ${state.quizScore}`;
+  document.getElementById('quizWord').textContent = word.kr;
+
+  // Generate options
+  const allWords = state.category
+    ? VOCABULARY[state.level][state.category]
+    : Object.values(VOCABULARY[state.level]).flat();
+
+  let options = [word.cn];
+  const others = allWords.filter(w => w.cn !== word.cn).map(w => w.cn);
+  shuffleArray(others);
+  while (options.length < 4 && others.length > 0) {
+    const opt = others.pop();
+    if (!options.includes(opt)) options.push(opt);
+  }
+  shuffleArray(options);
+
+  const container = document.getElementById('quizOptions');
+  container.innerHTML = options.map(opt =>
+    `<button class="quiz-option" onclick="answerQuiz(this, '${escapeStr(opt)}', '${escapeStr(word.cn)}')">${opt}</button>`
+  ).join('');
+
+  document.getElementById('quizResult').classList.add('hidden');
+  document.getElementById('quizNextBtn').classList.add('hidden');
+  state.quizAnswered = false;
+}
+
+function escapeStr(s) {
+  return s.replace(/'/g, "\\'");
+}
+
+function answerQuiz(btn, selected, correct) {
+  if (state.quizAnswered) return;
+  state.quizAnswered = true;
+  state.quizTotal++;
+
+  const options = document.querySelectorAll('.quiz-option');
+  options.forEach(opt => {
+    opt.classList.add('disabled');
+    if (opt.textContent === correct) opt.classList.add('correct');
+  });
+
+  const resultDiv = document.getElementById('quizResult');
+  resultDiv.classList.remove('hidden');
+
+  if (selected === correct) {
+    state.quizScore++;
+    resultDiv.className = 'quiz-result correct';
+    resultDiv.textContent = '正确!';
+  } else {
+    btn.classList.add('wrong');
+    resultDiv.className = 'quiz-result wrong';
+    resultDiv.textContent = `错误! 正确答案: ${correct}`;
+    state.wrongWords.push(state.words[state.currentIndex]);
+  }
+
+  document.getElementById('quizScore').textContent = `得分: ${state.quizScore}`;
+  document.getElementById('quizNextBtn').classList.remove('hidden');
+  document.getElementById('quizNextBtn').textContent =
+    state.currentIndex < state.words.length - 1 ? '下一题' : '查看结果';
+}
+
+function nextQuiz() {
+  if (state.currentIndex < state.words.length - 1) {
+    state.currentIndex++;
+    renderQuiz();
+  } else {
+    showResult();
+  }
+}
+
+// ========== RESULT ==========
+function showResult() {
+  const correct = state.known.length || state.quizScore;
+  const wrong = state.unknown.length || (state.quizTotal - state.quizScore);
+  const total = correct + wrong;
+  const percent = total > 0 ? Math.round(correct / total * 100) : 0;
+
+  showView('resultView');
+
+  document.getElementById('resultCorrect').textContent = correct;
+  document.getElementById('resultWrong').textContent = wrong;
+  document.getElementById('resultPercent').textContent = percent + '%';
+
+  // Animate circle
+  const circle = document.getElementById('resultCircle');
+  const circumference = 264;
+  const offset = circumference - (percent / 100) * circumference;
+  setTimeout(() => { circle.style.strokeDashoffset = offset; }, 100);
+
+  // Color based on score
+  if (percent >= 80) {
+    circle.style.stroke = 'var(--success)';
+  } else if (percent >= 50) {
+    circle.style.stroke = 'var(--warning)';
+  } else {
+    circle.style.stroke = 'var(--accent)';
+  }
+}
+
+function reviewWrong() {
+  if (state.wrongWords.length === 0) {
+    alert('没有错词需要复习!');
+    return;
+  }
+  state.words = [...state.wrongWords];
+  state.currentIndex = 0;
+  state.known = [];
+  state.unknown = [];
+  state.wrongWords = [];
+  shuffleArray(state.words);
+
+  showView('studyView');
+  renderCard();
+}
+
+// ========== WORD LIST ==========
+function renderWordList(filter) {
+  const container = document.getElementById('wordListContainer');
+  const allWords = [];
+
+  Object.entries(VOCABULARY).forEach(([lv, cats]) => {
+    Object.entries(cats).forEach(([cat, words]) => {
+      words.forEach(w => {
+        if (!filter || w.kr.includes(filter) || w.cn.includes(filter)) {
+          allWords.push({ ...w, level: lv, category: cat });
+        }
+      });
+    });
+  });
+
+  container.innerHTML = allWords.map(w => `
+    <div class="word-item">
+      <div class="word-item-left">
+        <span class="word-item-kr">${w.kr}</span>
+        <span class="word-item-cn">${w.cn}</span>
+      </div>
+      <div>
+        <span class="word-item-tag${state.mastered.has(w.kr) ? ' mastered' : ''}">${w.category}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterWordList() {
+  const q = document.getElementById('wordlistSearch').value.trim();
+  renderWordList(q);
+}
+
+// ========== VIEW SWITCHING ==========
+function switchView(view) {
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`[data-view="${view}"]`).classList.add('active');
+
+  if (view === 'wordlist') {
+    showView('wordlistView');
+    renderWordList();
+  } else if (view === 'quiz') {
+    // Need to select level/category first, then start quiz
+    showView('selectionView');
+    document.getElementById('startBtn').textContent = '开始测验';
+    document.getElementById('startBtn').onclick = () => startQuiz();
+  } else {
+    showView('selectionView');
+    document.getElementById('startBtn').textContent = '开始学习';
+    document.getElementById('startBtn').onclick = () => startStudy();
+  }
+}
+
+function showView(viewId) {
+  ['selectionView', 'studyView', 'quizView', 'resultView', 'wordlistView'].forEach(id => {
+    document.getElementById(id).classList.add('hidden');
+  });
+  document.getElementById(viewId).classList.remove('hidden');
+}
+
+function backToSelection() {
+  // Reset circle animation
+  document.getElementById('resultCircle').style.strokeDashoffset = 264;
+
+  const activeNav = document.querySelector('.nav-btn.active');
+  const view = activeNav ? activeNav.dataset.view : 'study';
+
+  if (view === 'quiz') {
+    document.getElementById('startBtn').textContent = '开始测验';
+    document.getElementById('startBtn').onclick = () => startQuiz();
+  } else {
+    document.getElementById('startBtn').textContent = '开始学习';
+    document.getElementById('startBtn').onclick = () => startStudy();
+  }
+
+  showView('selectionView');
+}
+
+// ========== UTILS ==========
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// ========== START ==========
+init();
+</script>
+
+</body>
+</html>
